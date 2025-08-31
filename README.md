@@ -1,0 +1,1 @@
+# rke2-infra-cluster-bare-metal
