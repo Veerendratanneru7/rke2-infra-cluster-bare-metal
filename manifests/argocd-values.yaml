@@ -1,0 +1,11 @@
+server:
+  service:
+    type: ClusterIP
+  extraArgs:
+    - --insecure
+controller:
+  replicas: 1
+redis:
+  enabled: true
+dex:
+  enabled: true

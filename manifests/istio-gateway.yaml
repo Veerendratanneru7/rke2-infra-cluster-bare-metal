@@ -1,0 +1,70 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: infra-gw
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "rancher.local"
+    - "argocd.local"
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https-rancher
+      protocol: HTTPS
+    hosts:
+    - "rancher.local"
+    tls:
+      mode: SIMPLE
+      credentialName: rancher-tls
+  - port:
+      number: 443
+      name: https-argocd
+      protocol: HTTPS
+    hosts:
+    - "argocd.local"
+    tls:
+      mode: SIMPLE
+      credentialName: argocd-tls
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rancher-vs
+  namespace: istio-system
+spec:
+  hosts:
+  - "rancher.local"
+  gateways:
+  - "infra-gw"
+  http:
+  - route:
+    - destination:
+        host: rancher.cattle-system.svc.cluster.local
+        port:
+          number: 80
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: argocd-vs
+  namespace: istio-system
+spec:
+  hosts:
+  - "argocd.local"
+  gateways:
+  - "infra-gw"
+  http:
+  - route:
+    - destination:
+        host: argocd-server.argocd.svc.cluster.local
+        port:
+          number: 80
